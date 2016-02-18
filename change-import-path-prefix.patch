@@ -1,0 +1,39 @@
+From a8085828f1f8ddb5c897c1eb8b959861751e2d76 Mon Sep 17 00:00:00 2001
+From: Jan Chaloupka <jchaloup@redhat.com>
+Date: Mon, 15 Jun 2015 16:53:44 +0200
+Subject: [PATCH] change import path prefix
+
+---
+ conn.go     | 2 +-
+ ssl_test.go | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/conn.go b/conn.go
+index 55a4b6c..4ff6fb6 100644
+--- a/conn.go
++++ b/conn.go
+@@ -42,7 +42,7 @@ import (
+ 	"time"
+ 	"unsafe"
+ 
+-	"github.com/spacemonkeygo/openssl/utils"
++	"github.com/10gen/openssl/utils"
+ )
+ 
+ var (
+diff --git a/ssl_test.go b/ssl_test.go
+index f83225d..0c088c2 100644
+--- a/ssl_test.go
++++ b/ssl_test.go
+@@ -25,7 +25,7 @@ import (
+ 	"testing"
+ 	"time"
+ 
+-	"github.com/spacemonkeygo/openssl/utils"
++	"github.com/10gen/openssl/utils"
+ )
+ 
+ var (
+-- 
+1.9.3
+

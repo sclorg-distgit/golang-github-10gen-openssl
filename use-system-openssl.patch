@@ -1,0 +1,205 @@
+From 255d11d665033961cc3a69614ae203c0c459dc24 Mon Sep 17 00:00:00 2001
+From: Jan Chaloupka <jchaloup@redhat.com>
+Date: Tue, 16 Jun 2015 07:03:05 +0200
+Subject: [PATCH] use system openssl
+
+---
+ bio.go                | 1 +
+ build.go              | 1 +
+ cert.go               | 1 +
+ ciphers.go            | 1 +
+ conn.go               | 1 +
+ ctx.go                | 1 +
+ dhparam.go            | 1 +
+ engine.go             | 1 +
+ hostname.go           | 1 +
+ init.go               | 1 +
+ init_posix.go         | 1 +
+ key.go                | 1 +
+ old_openssl_compat.go | 1 +
+ sha1.go               | 2 ++
+ sha256.go             | 1 +
+ 15 files changed, 16 insertions(+)
+
+diff --git a/bio.go b/bio.go
+index 1be93aa..249d128 100644
+--- a/bio.go
++++ b/bio.go
+@@ -19,6 +19,7 @@ package openssl
+ /*
+ #include <string.h>
+ #include <openssl/bio.h>
++#cgo LDFLAGS: -lssl
+ 
+ extern int cbioNew(BIO *b);
+ static int cbioFree(BIO *b) {
+diff --git a/build.go b/build.go
+index dd72651..995971f 100644
+--- a/build.go
++++ b/build.go
+@@ -20,4 +20,5 @@ package openssl
+ // #cgo windows CFLAGS: -DWIN32_LEAN_AND_MEAN
+ // #cgo darwin CFLAGS: -Wno-deprecated-declarations
+ // #cgo darwin LDFLAGS: -lssl -lcrypto
++// #cgo LDFLAGS: -lssl
+ import "C"
+diff --git a/cert.go b/cert.go
+index 673da85..6bf0a30 100644
+--- a/cert.go
++++ b/cert.go
+@@ -19,6 +19,7 @@ package openssl
+ // #include <openssl/conf.h>
+ // #include <openssl/ssl.h>
+ // #include <openssl/x509v3.h>
++// #cgo LDFLAGS: -lssl
+ //
+ // void OPENSSL_free_not_a_macro(void *ref) { OPENSSL_free(ref); }
+ //
+diff --git a/ciphers.go b/ciphers.go
+index 1266270..4b72474 100644
+--- a/ciphers.go
++++ b/ciphers.go
+@@ -17,6 +17,7 @@
+ package openssl
+ 
+ // #include <openssl/evp.h>
++// #cgo LDFLAGS: -lssl
+ //
+ // int EVP_CIPHER_block_size_not_a_macro(EVP_CIPHER *c) {
+ //     return EVP_CIPHER_block_size(c);
+diff --git a/conn.go b/conn.go
+index 4ff6fb6..c0bc867 100644
+--- a/conn.go
++++ b/conn.go
+@@ -20,6 +20,7 @@ package openssl
+ // #include <openssl/ssl.h>
+ // #include <openssl/conf.h>
+ // #include <openssl/err.h>
++// #cgo LDFLAGS: -lssl
+ //
+ // int sk_X509_num_not_a_macro(STACK_OF(X509) *sk) { return sk_X509_num(sk); }
+ // X509 *sk_X509_value_not_a_macro(STACK_OF(X509)* sk, int i) {
+diff --git a/ctx.go b/ctx.go
+index c1aa4cc..a3847d4 100644
+--- a/ctx.go
++++ b/ctx.go
+@@ -22,6 +22,7 @@ package openssl
+ #include <openssl/err.h>
+ #include <openssl/conf.h>
+ #include <openssl/x509.h>
++#cgo LDFLAGS: -lssl
+ 
+ static long SSL_CTX_set_options_not_a_macro(SSL_CTX* ctx, long options) {
+    return SSL_CTX_set_options(ctx, options);
+diff --git a/dhparam.go b/dhparam.go
+index a698645..4ae71a1 100644
+--- a/dhparam.go
++++ b/dhparam.go
+@@ -3,6 +3,7 @@
+ package openssl
+ 
+ /*
++#cgo LDFLAGS: -lssl
+ #include <openssl/crypto.h>
+ #include <openssl/ssl.h>
+ #include <openssl/err.h>
+diff --git a/engine.go b/engine.go
+index 7a175b7..9b48c45 100644
+--- a/engine.go
++++ b/engine.go
+@@ -18,6 +18,7 @@ package openssl
+ 
+ /*
+ #include "openssl/engine.h"
++#cgo LDFLAGS: -lssl
+ */
+ import "C"
+ 
+diff --git a/hostname.go b/hostname.go
+index 4f56d64..6fdc273 100644
+--- a/hostname.go
++++ b/hostname.go
+@@ -20,6 +20,7 @@ package openssl
+ #include <openssl/ssl.h>
+ #include <openssl/conf.h>
+ #include <openssl/x509.h>
++#cgo LDFLAGS: -lssl
+ 
+ #ifndef X509_CHECK_FLAG_ALWAYS_CHECK_SUBJECT
+ #define X509_CHECK_FLAG_ALWAYS_CHECK_SUBJECT	0x1
+diff --git a/init.go b/init.go
+index 7663a48..2d33c5d 100644
+--- a/init.go
++++ b/init.go
+@@ -92,6 +92,7 @@ package openssl
+ #include <openssl/err.h>
+ #include <openssl/evp.h>
+ #include <openssl/engine.h>
++#cgo LDFLAGS: -lssl
+ 
+ extern int Goopenssl_init_locks();
+ extern void Goopenssl_thread_locking_callback(int, int, const char*, int);
+diff --git a/init_posix.go b/init_posix.go
+index 03ed0f0..521a681 100644
+--- a/init_posix.go
++++ b/init_posix.go
+@@ -21,6 +21,7 @@ package openssl
+ #include <errno.h>
+ #include <openssl/crypto.h>
+ #include <pthread.h>
++#cgo LDFLAGS: -lssl
+ 
+ pthread_mutex_t* goopenssl_locks;
+ 
+diff --git a/key.go b/key.go
+index ec6d780..db96cdd 100644
+--- a/key.go
++++ b/key.go
+@@ -19,6 +19,7 @@ package openssl
+ // #include <openssl/evp.h>
+ // #include <openssl/ssl.h>
+ // #include <openssl/conf.h>
++// #cgo LDFLAGS: -lssl
+ //
+ // int EVP_SignInit_not_a_macro(EVP_MD_CTX *ctx, const EVP_MD *type) {
+ //     return EVP_SignInit(ctx, type);
+diff --git a/old_openssl_compat.go b/old_openssl_compat.go
+index 028f13b..ac3bb4e 100644
+--- a/old_openssl_compat.go
++++ b/old_openssl_compat.go
+@@ -18,6 +18,7 @@
+ package openssl
+ 
+ // #include <openssl/ssl.h>
++// #cgo LDFLAGS: -lssl
+ import "C"
+ 
+ // these constants do not exist in the openssl version packaged with os x. when
+diff --git a/sha1.go b/sha1.go
+index 2592b66..0edf200 100644
+--- a/sha1.go
++++ b/sha1.go
+@@ -23,6 +23,8 @@ package openssl
+ #include <unistd.h>
+ 
+ #include "openssl/evp.h"
++#cgo LDFLAGS: -lssl
++#cgo LDFLAGS: -lcrypto
+ */
+ import "C"
+ 
+diff --git a/sha256.go b/sha256.go
+index 6785b32..5807954 100644
+--- a/sha256.go
++++ b/sha256.go
+@@ -23,6 +23,7 @@ package openssl
+ #include <unistd.h>
+ 
+ #include "openssl/evp.h"
++#cgo LDFLAGS: -lssl
+ */
+ import "C"
+ 
+-- 
+1.9.3
+
